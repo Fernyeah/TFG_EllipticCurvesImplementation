@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Criptografía con curvas elípticas: Implementación y Análisis de los principales protocolos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eee;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Espacio entre la imagen y el texto */
+            background-color: #eee;
+            padding: 5px;
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .header img {
+            display: block;
+            width: 150px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .header p {
+            margin: 0;
+            flex-grow: 1;
+            display: flex;
+            align-items: right;
+            justify-content: flex-end; /* Alinear el texto a la derecha */
+            text-indent: 20px; /* Sangría a la derecha */
+            text-align: right;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 40px;
+            margin-top: 20px;
+        }
+
+        p {
+            color: #666;
+        }
+
+        .button-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .button-container button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        .button-container button:hover {
+            background-color: #45a049;
+        }
+
+        #console {
+            list-style-type: none;
+            font-family: 'Roboto Mono', monospace;
+            width: 800px;
+            height: 400px;
+            margin-left: 20px auto;
+            background-color: #eee;
+            padding: 10px;
+            overflow: auto;
+            white-space: pre-line; /* Mantener saltos de línea */
+            text-align: left;
+            margin-top: 50px;
+            /*line-height: 1.5; /* Ajusta el valor para cambiar el espaciado */
+        } 
+
+        /* Personalización de la scrollbar */
+    #console::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    /* Fondo de la scrollbar */
+    #console::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Estilo del pulgar de la scrollbar */
+    #console::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 6px;
+    }
+
+    /* Estilo del pulgar de la scrollbar al pasar el ratón por encima */
+    #console::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+        .image-container {
+            display: none;
+            position: absolute; /* Cambiar a posición absoluta */
+            right: 20px; /* Alinear a la derecha */
+            top: 250px; /* Alinear a la misma altura que la consola */
+            margin-top: 20px;
+            margin-right: 100px;
+        }
+
+        .image-container.active {
+            display: block;
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            padding: 10px;
+            text-align: center;
+            margin-top: 50px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .footer img {
+            display: block;
+            width: 20;
+            height: 10;
+            margin-right: 10px;
+        }
+
+        .footer p {
+            margin: 0;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{ user_image }}" alt="Logo" width="200" height="auto">
+        <p>
+            Universidad Politécnica de Madrid<br>
+            Escuela Técnica Superior de Ingenieros de Telecomunicaciones<br>
+            Trabajo de Fin de Grado | Fernando Herrera Pozo<br>
+            Julio 2023
+        </p>
+    </div>
+    
+    
+    <h1>Criptografía con curvas elípticas: Implementación y Análisis de los principales protocolos.</h1>
+    <p>Haz click en el algoritmo que deseas ejecutar.</p>
+
+    <div class="button-container">
+        <button id="ECDH">Ejecutar ECDH</button>
+        <button id="ECIES">Ejecutar ECIES</button>
+        <button id="ECDSA">Ejecutar ECDSA</button>
+    </div>
+
+    <div id="console"></div>
+
+    <div class="image-container" id="image-ecdh">
+        <img src="" alt="Imagen ECDH" width="300">
+    </div>
+
+    <div class="image-container" id="image-ecies">
+        <img src="" alt="Imagen ECIES" width="350">
+    </div>
+
+    <div class="image-container" id="image-ecdsa">
+        <img src="" alt="" width="350">
+    </div>
+    
+
+    <div class="footer">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="margin-bottom: 10px;">
+                <img src="{{ user_image }}" alt="Logo" width="200" height="auto">
+            </div>
+            <div style="text-align: center;">
+                Universidad Politécnica de Madrid <br>
+                Escuela Técnica Superior de Ingenieros de Telecomunicaciones<br>
+                Trabajo de Fin de Grado | Fernando Herrera Pozo <br>
+                Julio 2023<br>
+                <br>
+                <br>
+                Esta página web no es oficial de la UPM. 
+            </div>
+        </div>
+    </div>
+    
+    
+
+    <script>
+        function formatOutput(data) {
+            return (
+                "Punto uG de la curva:\n" +
+                "uG: " + JSON.stringify(data.X.x) + "\n\n" +
+                "Punto vG de la curva" + "\n" +
+                "vG: " + JSON.stringify(data.Y.x) + "\n\n" +
+                "Clave pública de U" + "\n" +
+                "u(vG): " + JSON.stringify(data.AliceSharedKey.x) + "\n\n" +
+                "Clave pública de V" + "\n" +
+                "v(uG): " + JSON.stringify(data.BobSharedKey.x) + "\n\n" +
+                "u(vG) = v(uG): " + JSON.stringify(data.EqualSharedKeys.equal_shared_keys) + "\n\n" +
+                "Tiempo de ejecución: " + JSON.stringify(data.ExecutionTime) + "\n\n" +
+                "Curva utilizada: " + JSON.stringify(data.Curva) + "\n\n" +
+                "Size clave: " + JSON.stringify(data.Sizeclave)
+            );
+        }
+
+        function formatOutput2(data) {
+            return (
+                "Clave de encriptación pública: " + JSON.stringify(data.EncryptionPublickey) +  "\n\n" + 
+                "Clave de desencriptación privada: " + JSON.stringify(data.DecryptionPrivatekey) + "\n\n" +
+                "Mensaje a encriptar: " + JSON.stringify(data.Message) + "\n\n" + 
+                "Mensaje encriptado: " + JSON.stringify(data.Encrypted) + "\n\n" + 
+                "Mensaje desencriptado: " + JSON.stringify(data.OriginalMessage) + "\n\n" + 
+                "Tiempo de ejecución: " + JSON.stringify(data.ExecutionTime) + "\n\n" + 
+                "Curva utilizada: " + JSON.stringify(data.Curva) + "\n\n" + 
+                "Size Clave Cifrado: " + JSON.stringify(data.SizeClaveCifrado)
+            );
+        }
+
+        function formatOutput3(data) {
+            return (
+                "Clave de firma privada: " + JSON.stringify(data.SigningKey_private) +  "\n\n" + 
+                "Clave de verificación pública: " + JSON.stringify(data.VerificationKey_public) + "\n\n" +
+                "Firma: " + JSON.stringify(data.Signature) + "\n\n" + 
+                "Verificación completada: " + JSON.stringify(data.VerificationResult) + "\n\n" + 
+                "Tiempo de ejecución: " + JSON.stringify(data.ExecutionTime) + "\n\n" + 
+                "Curva utilizada: " + JSON.stringify(data.Curva)+ "\n\n" + 
+                "Size Clave de firma: " + JSON.stringify(data.SizeClavefirma)
+            );
+        }
+
+
+        function showImage(imageId) {
+            const imageContainers = document.getElementsByClassName("image-container");
+            for (let i = 0; i < imageContainers.length; i++) {
+                imageContainers[i].classList.remove("active");
+            }
+
+            const imageElement = document.querySelector(`#${imageId} img`);
+            const imageContainer = document.getElementById(imageId);
+            if (imageElement && imageContainer) {
+                imageContainer.classList.add("active");
+                imageElement.src = "{{ url_for('static', filename='IMG/') }}" + imageId + ".png";
+            }
+        }
+
+        document.getElementById("ECDH").addEventListener("click", function() {
+            fetch('/ECDH')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById("console").innerText = formatOutput(data);
+                    showImage("image-ecdh");
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        document.getElementById("ECIES").addEventListener("click", function() {
+            fetch('/ECIES')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById("console").innerText = formatOutput2(data);
+                    showImage("image-ecies");
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        document.getElementById("ECDSA").addEventListener("click", function() {
+            fetch('/ECDSA')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById("console").innerText = formatOutput3(data);
+                    showImage("image-ecdsa");
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+    </script>
+</body>
+</html>
