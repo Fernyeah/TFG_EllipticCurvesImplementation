@@ -17,7 +17,7 @@ Se han realizado pruebas exhaustivas para evaluar el desempeño y la eficiencia 
 
 ## Uso y Ejecución
 
-Para utilizar esta implementación, es necesario tener instalado Python en el sistema. Además de las bibliotecas \tinyec , \ecdsa y \eciespy. 
+Para utilizar esta implementación, es necesario tener instalado Python en el sistema. Además de las bibliotecas \tinyec, \ecdsa y \eciespy. 
 
 ## Autor
 - FERNANDO HERRERA POZO
